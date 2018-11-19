@@ -1,0 +1,18 @@
+FROM centos:TAG
+
+COPY . /opt/.
+
+ARG LIBDWARF=libdwarf-20180809
+
+RUN yum swap -y fakesystemd systemd; exit 0
+
+RUN yum install -y libdwarf-tools gcc kernel-devel.x86_64 git make redhat-lsb-core zip wget gcc-c++ elfutils-libelf-devel coreutils unzip && \
+    cd /opt && tar -xf ${LIBDWARF}.tar.gz && cd $LIBDWARF && ./configure && make -j`nproc` && make install && \
+    cd /opt && wget https://github.com/volatilityfoundation/volatility/archive/master.zip && unzip -o master.zip && cd volatility-master/tools/linux/ && \
+    export KERNEL_SRC=`find /usr/src/kernels/ -maxdepth 1 -mindepth 1 -type d` && \
+    sed -i "s|\$(KDIR)/lib/modules/\$(KVER)/build|$KERNEL_SRC|g" ./Makefile && make && cp $KERNEL_SRC/System.map . && \
+    zip -9 "$(lsb_release -is)-$(lsb_release -rs)-$(basename $KERNEL_SRC).zip" System.map module.dwarf && \
+    mkdir /profiles && mv *.zip /profiles
+
+
+

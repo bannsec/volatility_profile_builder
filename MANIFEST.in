@@ -1,0 +1,4 @@
+include volatility_profile_builder/docker/*
+global-exclude *.pyc
+global-exclude *.swp
+global-exclude *.egg-info
