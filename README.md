@@ -72,3 +72,7 @@ pip install .
 
 # Dependencies
 This process relies on docker for the build environment. Be sure to have docker installed.
+
+# FAQ
+## Why is my build failing?
+Could be many reasons. However, one gotcha with this build process is that is relies on the OS having a working repository. If you're attempting to build using this for an OS that does __not__ have a working repo (such as old versions of Ubuntu), install will fail and then build will fail.

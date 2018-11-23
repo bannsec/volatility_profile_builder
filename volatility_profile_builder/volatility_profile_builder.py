@@ -21,7 +21,7 @@ here = os.path.dirname(os.path.realpath(__file__))
 
 def parse_args():
     parser = argparse.ArgumentParser(description='Helper script to build Volatility Profiles for Linux.')
-    parser.add_argument('distribution', choices=['centos'],
+    parser.add_argument('distribution', choices=['centos', 'ubuntu'],
                         help='What distribution to build for.')
     args = parser.parse_args()
     return args
