@@ -14,7 +14,7 @@ long_description = "See website for more info."
 
 setup(
     name='volatility_profile_builder',
-    version='0.0.3',
+    version='0.0.4',
     description='Helper to build volatility profiles.',
     long_description=long_description,
     url='https://github.com/bannsec/volatility_profile_builder',

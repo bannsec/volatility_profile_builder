@@ -1,0 +1,14 @@
+FROM debian:TAG
+
+ARG DEBIAN_FRONTEND=noninteractive
+ARG KERNEL_MAP=INSERT_KERNEL_MAP_HERE
+ARG KERNEL_VERSION=INSERT_KERNEL_VERSION_HERE
+ARG KERNEL_HEADERS=INSERT_KERNEL_HEADERS_HERE
+
+RUN apt update && apt install -y dwarfdump build-essential wget unzip zip lsb-release $KERNEL_MAP $KERNEL_HEADERS && \
+    export KERNEL_SRC="/lib/modules/$KERNEL_VERSION/build/" && \
+    mkdir -p /opt && cd /opt && wget https://github.com/volatilityfoundation/volatility/archive/master.zip && unzip -o master.zip && cd volatility-master/tools/linux/ && \
+    sed -i "s|\$(KDIR)/lib/modules/\$(KVER)/build|$KERNEL_SRC|g" ./Makefile && make && cp /boot/System.map-$KERNEL_VERSION . && \
+    zip -9 "$(lsb_release -is)-$(lsb_release -rs)-$KERNEL_VERSION.zip" System.map* module.dwarf && \
+    mkdir /profiles && mv *.zip /profiles
+
