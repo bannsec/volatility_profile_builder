@@ -12,6 +12,8 @@ import io
 
 from .helpers import grab_profiles
 
+from natsort import natsorted
+
 here = os.path.dirname(os.path.realpath(__file__))
 
 def prompt_for_kernel(tag, tmpdirname):
@@ -21,11 +23,13 @@ def prompt_for_kernel(tag, tmpdirname):
     base_image = 'ubuntu:' + tag
     client.images.pull(base_image)
 
-    out = client.containers.run(base_image, '/bin/bash -c "apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y apt-file && apt-file update && echo AAAABBBBCCCCDDDD && apt-file search -x /System.map-*"', remove=True)
+    out = client.containers.run(base_image, '/bin/bash -c "apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y apt-file && apt-file update && echo AAAABBBBCCCCDDDD && apt-file search -x /boot/vmlinuz*"', remove=True)
     out = out.decode()
 
     kernels = out.split("AAAABBBBCCCCDDDD")[1].strip().split("\n")
-    kernels = [x.split(":")[0] for x in kernels]
+    kernels = [x.split(":")[0] for x in kernels if "unsigned" not in x.split(":")[0]]
+    kernels = ['-'.join(x.split("-")[2:]) for x in kernels]
+    kernels = natsorted(kernels)
 
     print("OK")
     
@@ -38,13 +42,10 @@ def prompt_for_kernel(tag, tmpdirname):
         if kernel not in kernels:
             logger.error("Invalid selection. Example valid selection is: " + kernels[0])
         else:
-            map_file = kernel
-            kernel_version = '-'.join(map_file.split("-")[2:])
-            # TODO: This is an assumption that it will always start with two dashes, i.e.: linux-modules
-            # Should probably make this more robust...
+            map_file = "linux-image-" + kernel
+            kernel_version = kernel
             headers = "linux-headers-" + kernel_version
             return headers, map_file, kernel_version
-
 
 def build_profile(tag):
 

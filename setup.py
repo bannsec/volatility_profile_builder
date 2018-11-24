@@ -31,7 +31,7 @@ setup(
     ],
     keywords='volatility profile build',
     packages=find_packages(exclude=['contrib', 'docs', 'tests', 'volatility_profile_builder.egg-info']),
-    install_requires=['requests', 'docker', 'prettytable'],
+    install_requires=['requests', 'docker', 'prettytable', 'natsort'],
     entry_points={
         'console_scripts': [
             'volatility_profile_builder = volatility_profile_builder.volatility_profile_builder:main',
