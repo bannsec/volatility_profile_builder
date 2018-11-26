@@ -1,0 +1,19 @@
+FROM alpine:TAG
+
+COPY . /opt/.
+
+ARG LIBDWARF=libdwarf-20180809
+
+# This doesn't work yet... Can't seem to find the makefiles that the running kernel was built from.
+# /etc/alpine-release == (3.8.1)
+# linux-hardened isn't installing atm
+# apk add linux-headers gcc g++ wget unzip zip make linux-vanilla libelf-dev git
+# git clone -b 3.8-stable git://git.alpinelinux.org/aports
+
+RUN apk update && apt add linux-headers gcc g++ wget unzip zip make linux-vanilla libelf-dev alpine-sdk && \
+    export KERNEL_SRC="/lib/modules/$KERNEL_VERSION/build/" && \
+    mkdir -p /opt && cd /opt && wget https://github.com/volatilityfoundation/volatility/archive/master.zip && unzip -o master.zip && cd volatility-master/tools/linux/ && \
+    sed -i "s|\$(KDIR)/lib/modules/\$(KVER)/build|$KERNEL_SRC|g" ./Makefile && make && cp /boot/System.map-$KERNEL_VERSION . && \
+    zip -9 "$(lsb_release -is)-$(lsb_release -rs)-$KERNEL_VERSION.zip" System.map* module.dwarf && \
+    mkdir /profiles && mv *.zip /profiles
+
